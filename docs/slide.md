@@ -7,31 +7,31 @@ html: true
 style: |
   section {
     font-family: 'Noto Sans JP', sans-serif;
-    font-size: 28px;
+    font-size: 24px;
   }
   section h1 {
-    font-size: 2.2rem;
-  }
-  section h2 {
     font-size: 1.8rem;
   }
-  section h3 {
+  section h2 {
     font-size: 1.4rem;
+  }
+  section h3 {
+    font-size: 1.2rem;
   }
   section.lead h1 {
     text-align: center;
-    font-size: 2.5rem;
+    font-size: 2.2rem;
   }
   section.lead h3 {
     text-align: center;
-    font-size: 1.3rem;
+    font-size: 1.1rem;
     color: #666;
   }
   code {
-    font-size: 0.9em;
+    font-size: 0.85em;
   }
   pre {
-    font-size: 0.75em;
+    font-size: 0.8em;
     line-height: 1.3;
   }
   table {
@@ -111,11 +111,12 @@ speaker notes:
 
 ---
 
-<h1 style="font-size: 1.8rem">シンプルな実装を試してみる</h1>
+# シンプルな実装を試してみる
 
-<pre style="font-size: 0.7em"><code class="language-csharp">public class MethodCounter_NotThreadSafe : IMethodCounter
+```cs
+public class MethodCounter_NotThreadSafe : IMethodCounter
 {
-    private Dictionary&lt;string, int&gt; _counts = new();
+    private Dictionary<string, int> _counts = new();
 
     public void Record(string methodName)
     {
@@ -125,37 +126,32 @@ speaker notes:
             _counts[methodName] = 1;
     }
 }
-</code></pre>
+```
 
 <br>
 
-<h3 style="font-size: 1.2rem">⚠️ 複数スレッドから同時アクセスすると...？</h3>
+### ⚠️ 複数スレッドから同時アクセスすると...？
 
 ---
 
-<h1 style="font-size: 1.8rem">結果：データが壊れる 💥</h1>
+# 結果：データが壊れる 💥
 
-<div style="font-size: 0.85em">
-
-<h2 style="font-size: 1.3rem">テスト条件</h2>
-
+## テスト条件
 - 100スレッド × 10,000回 = 合計100万回の呼び出し
 
-<pre style="font-size: 0.75em"><code>スレッドセーフでない実装の問題点
+```console
+スレッドセーフでない実装の問題点
 --------------------------------------------------
   -> 期待したカウント: 1,000,000
   -> 実際のカウント:   112,644  ❌
   -> 例外の発生回数:   0
 
   [結論] マルチスレッド環境では全く信頼できません
-</code></pre>
+```
 
-<h3 style="font-size: 1.2rem">問題の原因</h3>
-
+### 問題の原因
 - <span class="danger">データ不整合</span>: `++`操作はアトミックではない
 - <span class="danger">例外リスク</span>: `Dictionary`の内部構造が破損する可能性
-
-</div>
 
 <!-- 
 speaker notes:
@@ -165,14 +161,15 @@ speaker notes:
 
 ---
 
-<h1 style="font-size: 1.8rem">解決策1：`lock`で守る 🔒</h1>
+# 解決策1：`lock`で守る 🔒
 
-<h2 style="font-size: 1.4rem">相互排他による安全性の確保</h2>
+## 相互排他による安全性の確保
 
-<pre style="font-size: 0.65em"><code class="language-csharp">public class MethodCounter_WithLock : IMethodCounter
+```cs
+public class MethodCounter_WithLock : IMethodCounter
 {
     private readonly object _lock = new();
-    private Dictionary&lt;string, int&gt; _counts = new();
+    private Dictionary<string, int> _counts = new();
 
     public void Record(string methodName)
     {
@@ -185,29 +182,28 @@ speaker notes:
         }
     }
 }
-</code></pre>
+```
 
-<h3 style="font-size: 1.3rem">✅ これで処理は安全に！</h3>
+### ✅ これで処理は安全に！
 
 ---
 
-<h1 style="font-size: 1.8rem">`lock`版の実行結果</h1>
+# `lock`版の実行結果
 
-<pre style="font-size: 0.75em"><code>'lock'によるスレッドセーフな実装
+```console
+'lock'によるスレッドセーフな実装
 --------------------------------------------------
   -> 期待したカウント: 1,000,000
   -> 実際のカウント:   1,000,000  ✅
 
   [結論] 'lock'を使えば、安全で正確なカウンターを実装できます
-</code></pre>
+```
 
-<br>
+## 🎉 問題解決！
 
-<h2 style="font-size: 1.5rem">🎉 問題解決！</h2>
+### ...でも、ちょっと待って
 
-<h3 style="font-size: 1.3rem">...でも、ちょっと待って</h3>
-
-<p style="font-size: 1.1em"><span class="warning">スレッドの「順番待ち」がボトルネックになるのでは？</span></p>
+<span class="warning">スレッドの「順番待ち」がボトルネックになるのでは？</span>
 
 <!-- 
 speaker notes:
@@ -217,47 +213,124 @@ speaker notes:
 
 ---
 
-<h1 style="font-size: 1.8rem">解決策2：Lock-Free実装 ⚡</h1>
+# 深掘り：lock の内部動作 🔍
 
-<h2 style="font-size: 1.4rem">`ConcurrentQueue<T>`を使った高速化</h2>
+## Monitor クラスの仕組み
 
-<pre style="font-size: 0.65em"><code class="language-csharp">public class MethodCounter_LockFree : IMethodCounter
+```cs
+// lockステートメントの展開
+lock (_lock) { /* クリティカルセクション */ }
+
+// ↓ 実際の動作
+bool lockTaken = false;
+try
 {
-    private ConcurrentQueue&lt;string&gt; _events = new();
+    Monitor.Enter(_lock, ref lockTaken);
+    // クリティカルセクション
+}
+finally
+{
+    if (lockTaken) Monitor.Exit(_lock);
+}
+```
+
+### 重要なポイント
+- **待機キュー**: 取得できなかったスレッドは待機状態
+- **公平性**: 待機時間順ではない
+- **再入可能**: 同一スレッドは複数回ロック可能
+
+---
+
+# 解決策2：Lock-Free実装 ⚡
+
+## `ConcurrentQueue<T>`を使った高速化
+
+```cs
+public class MethodCounter_LockFree : IMethodCounter
+{
+    private ConcurrentQueue<string> _events = new();
     
     public void Record(string methodName)
     {
-        _events.Enqueue(methodName);  // lockなしで超高速！
+        _events.Enqueue(methodName);  // lockなし！
     }
     
-    public Dictionary&lt;string, int&gt; GetCountsAndReset()
+    public Dictionary<string, int> GetCountsAndReset()
     {
         // Interlocked.Exchangeでアトミックに交換
         var currentQueue = Interlocked.Exchange(
-            ref _events, new ConcurrentQueue&lt;string&gt;()
+            ref _events, new ConcurrentQueue<string>()
         );
         // 後で集計...
     }
 }
-</code></pre>
+```
 
 ---
 
-<h1 style="font-size: 1.8rem">性能比較：驚きの結果！</h1>
+# 深掘り：ConcurrentQueue の威力 💪 (1/2)
 
-<h2 style="font-size: 1.4rem">純粋な書き込み性能テスト（3秒間）</h2>
+## なぜ ConcurrentQueue は速いのか？
 
-<pre style="font-size: 0.8em"><code>パフォーマンス比較結果
+### 内部実装の特徴
+
+1. **セグメント構造**
+   - 動的拡張可能なセグメント連結リスト
+   - 各セグメントは固定サイズ配列
+
+2. **Compare-And-Swap (CAS) 操作**
+   ```cs
+   // アトミックな更新
+   Interlocked.CompareExchange(ref location, newValue, comparand)
+   ```
+
+アトミックな更新操作により、ロックなしで安全な並行アクセスを実現
+
+---
+
+<style scoped>
+section { font-size: 20px; }
+/* h1 { font-size: 1.4rem; } */
+h3 { font-size: 0.9rem; }
+</style>
+
+# 深掘り：ConcurrentQueue の威力 💪 (2/2)
+
+## 高速化の秘密（続き）
+
+3. **スピンロック + バックオフ**
+   - 短時間待機：スピン（ビジーウェイト）
+   - 長時間競合：Thread.Yield() / Sleep(0)
+
+4. **false sharing 回避**
+   - パディングでキャッシュライン分離
+   - CPUキャッシュラインの競合を防止
+
+### 結果
+<p class="success">✨ ロックフリーで高スループット実現！</p>
+
+**スループット向上の要因**
+- CPU待機時間の削減
+- メモリアクセスパターンの最適化
+
+---
+
+
+
+# 性能比較：驚きの結果！
+
+```console
+パフォーマンス比較結果（3秒間の書き込み性能テスト）
 --------------------------------------------------
   -> 🔒 Lock版:        9,146,396 件/秒
   -> ⚡ Lock-free版:   14,775,923 件/秒
 
   [結論] Lock-Free版はLock版の約1.62倍高速！
-</code></pre>
+```
 
-<br>
+### 🚀 これで速度も正確性も完璧...？
 
-<h3 style="font-size: 1.4rem">🚀 これで速度も正確性も完璧...？</h3>
+<span style="font-size: 0.8em">**高速化の要因**: ロック競合排除 + CPUキャッシュ効率向上</span>
 
 <!-- 
 speaker notes:
@@ -267,24 +340,70 @@ speaker notes:
 
 ---
 
-<h1 style="font-size: 1.8rem">Lock-Free版の落とし穴 😱</h1>
+# Lock-Free版の落とし穴 😱
 
-<h2 style="font-size: 1.4rem">書き込みと読み出しを同時実行すると...</h2>
+## 書き込みと読み出しを同時実行すると...
 
-<pre style="font-size: 0.75em"><code>Lock-Free版の高負荷テスト結果
+```console
+Lock-Free版の高負荷テスト結果
 --------------------------------------------------
   -> 書き込み総数: 151,192,646
   -> 読み取り総数: 151,192,644
   -> ロストした数: 2  ⚠️
 
   [結論] わずかですが、データがロストしました！
-</code></pre>
+```
 
-<br>
+### 🤔 なぜデータが失われるのか？
 
-<h3 style="font-size: 1.3rem">🤔 なぜデータが失われるのか？</h3>
+高速化と引き換えに、完全性を犠牲にしているのでしょうか？
 
-<p style="font-size: 0.9em">高速化と引き換えに、完全性を犠牲にしているのでしょうか？</p>
+---
+
+
+
+# 深掘り：Interlocked.Exchange の魔法 🎯 (1/2)
+
+## CPU 命令レベルでの動作
+
+### x86/x64 での実装
+```asm
+; XCHG 命令 - アトミックな交換
+LOCK XCHG [memory], register
+```
+
+### なぜアトミックなのか？
+- **単一CPU命令**: 割り込み不可能な操作
+- **ハードウェア保証**: CPUレベルでの完全性
+- **マルチコア対応**: 全コア間での同期
+
+<span style="font-size: 0.9em">**重要**: ソフトウェアロックより根本的に安全</span>
+
+---
+
+
+
+# 深掘り：Interlocked.Exchange の魔法 🎯 (2/2)
+
+## 3つの重要な特徴
+
+1. **メモリバリア**
+   - Full Fence が自動適用
+   - 前後命令の並び替え防止
+
+2. **キャッシュコヒーレンシ**
+   - 全CPUコアのキャッシュ同期
+   - 可視性の即座保証
+
+3. **パフォーマンス**
+   - lockより高速
+   - スケーラビリティ向上
+
+```cs
+// 使用例
+var oldValue = Interlocked.Exchange(ref _events, newQueue);
+// oldValue には交換前の値が確実に入る
+```
 
 ---
 
@@ -321,6 +440,66 @@ speaker notes:
 
 ---
 
+# 深掘り：スレッド間の可視性 👁️
+
+## メモリモデルと volatile
+
+### CPU キャッシュの問題
+```cs
+// Thread 1
+_flag = true;  // CPU1 キャッシュに書き込み
+
+// Thread 2  
+if (_flag)     // CPU2 キャッシュから読み込み（古い値？）
+```
+
+### volatile の役割
+```cs
+private volatile bool _flag;  // 常にメモリから読み書き
+```
+
+### メモリバリアの種類
+- **Read Barrier**: 読み込み順序保証
+- **Write Barrier**: 書き込み順序保証  
+- **Full Barrier**: 両方保証（lock, Interlocked）
+
+<p class="warning">⚠️ volatile は順序保証のみ、アトミック性は保証しない！</p>
+
+---
+
+# 深掘り：Task と async/await 🌟
+
+## 非同期プログラミングでの同期
+
+```cs
+// ロックを使わない非同期カウンター
+public class AsyncMethodCounter
+{
+    private readonly Channel<string> _events = 
+        Channel.CreateUnbounded<string>();
+    
+    public async ValueTask RecordAsync(string methodName)
+    {
+        await _events.Writer.WriteAsync(methodName);
+    }
+    
+    public async Task<Dictionary<string, int>> GetCountsAsync()
+    {
+        var counts = new Dictionary<string, int>();
+        await foreach (var name in _events.Reader.ReadAllAsync())
+        {
+            counts[name] = counts.GetValueOrDefault(name) + 1;
+        }
+        return counts;
+    }
+}
+```
+
+### メリット
+- スレッドをブロックしない、より高いスケーラビリティ、バックプレッシャー制御可能
+
+---
+
 # まとめ：3つの実装の比較
 
 <style scoped>
@@ -347,12 +526,90 @@ th, td {
 
 <br>
 
-<h2 style="font-size: 1.5rem">🎯 重要な教訓</h2>
+<style scoped>
+section { font-size: 20px; }
+h1 { font-size: 1.4rem; }
+h2 { font-size: 1.1rem; }
+h3 { font-size: 0.9rem; }
+table { font-size: 0.75em; }
+</style>
 
-<blockquote style="font-size: 1.1em; margin: 20px">
-<p><strong>「銀の弾丸」は存在しない</strong></p>
-<p style="font-size: 0.9em">トレードオフを理解し、要件に合った実装を選択することが重要</p>
-</blockquote>
+---
+# 高度な同期プリミティブ 🛠️ (1/2)
+
+## 基本的なプリミティブ
+
+| プリミティブ | 用途 | 特徴 |
+|:------------|:-----|:-----|
+| **lock** | 一般的な排他制御 | シンプル、再入可能 |
+| **ReaderWriterLockSlim** | 読み込み頻度が高い | 複数読み、単一書き |
+| **SemaphoreSlim** | リソース数制限 | カウンティングセマフォ |
+
+### 適用場面
+- **lock**: 一般的な相互排他
+- **ReaderWriterLockSlim**: 読み取り >> 書き込み
+- **SemaphoreSlim**: 同時アクセス数制限
+
+---
+
+
+# 高度な同期プリミティブ 🛠️ (2/2)
+
+## 特殊用途のプリミティブ
+
+| プリミティブ | 用途 | 特徴 |
+|:------------|:-----|:-----|
+| **Barrier** | フェーズ同期 | 全スレッドの同期点 |
+| **CountdownEvent** | イベント待ち | カウントダウン完了待ち |
+
+### 使用例
+- **Barrier**: 並列処理の各フェーズ完了待ち
+- **CountdownEvent**: 複数タスク完了待ち
+
+---
+
+<style scoped>
+/* section { font-size: 20px; }
+h1 { font-size: 1.4rem; }
+h2 { font-size: 1.1rem; }
+h3 { font-size: 0.9rem; } */
+</style>
+
+# 同期プリミティブ選択指針 🎯
+
+## 実践的な選択基準
+
+### パフォーマンス重視
+- **読み書き比率**: 7:1以上なら ReaderWriterLockSlim
+- **待機時間**: 短時間=SpinLock、長時間=通常lock
+- **スケーラビリティ**: 高負荷時はlock-freeデータ構造
+
+### 基本的な考え方
+<span style="font-size: 0.9em">**シンプルさ vs パフォーマンス vs 機能性のバランス**</span>
+
+---
+
+# 同期プリミティブ実装戦略 📋
+
+## 段階的アプローチ
+
+### 実装の進め方
+1. **まずはlock**: 簡単で確実
+2. **ボトルネック特定**: プロファイリングで確認  
+3. **段階的最適化**: 必要な部分のみ高度化
+
+### 選択の指針
+- **開発速度重視**: lock を使用
+- **性能要件厳しい**: 専用プリミティブ検討
+- **複雑な同期**: 複数プリミティブ組み合わせ
+
+---
+
+## 🎯 重要な教訓
+
+> **「銀の弾丸」は存在しない**
+> 
+> トレードオフを理解し、要件に合った実装を選択することが重要
 
 ---
 
