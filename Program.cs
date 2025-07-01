@@ -35,7 +35,7 @@ class Program
     static async Task Step1_ShowNotThreadSafe()
     {
         PrintHeader("1. スレッドセーフでない実装の問題点");
-        Console.WriteLine("10スレッドから各10,000回、合計100,000回の呼び出しを行ってみます。");
+        Console.WriteLine($"{ThreadCount:N0}スレッドから各{CallsPerThread:N0}回、合計{TotalCalls:N0}回の呼び出しを行ってみます。");
         Console.WriteLine("結果：例外が発生したり、カウントが期待値と大きくずれたりします。\n");
 
         // テスト前にGCを実行し、メモリ状態をクリーンにする
@@ -175,11 +175,11 @@ class Program
             {
                 var c = counter.GetCountsAndReset();
                 Interlocked.Add(ref totalRead, c.Values.Sum());
-                await Task.Delay(2);
+                await Task.Delay(1);
             }
         });
 
-        await Task.Delay(5000); // 5秒間テスト
+        await Task.Delay(10000); // 10秒間テスト
         cts.Cancel();
         await Task.WhenAll(writerTasks.Append(readerTask));
         totalRead += counter.GetCountsAndReset().Values.Sum(); // 残りを回収

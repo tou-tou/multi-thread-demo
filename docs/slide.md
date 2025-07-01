@@ -113,6 +113,10 @@ speaker notes:
 
 # シンプルな実装を試してみる
 
+<style scoped>
+pre { font-size: 0.7em; }
+</style>
+
 ```cs
 public class MethodCounter_NotThreadSafe : IMethodCounter
 {
@@ -125,31 +129,112 @@ public class MethodCounter_NotThreadSafe : IMethodCounter
         else
             _counts[methodName] = 1;
     }
+
+    public Dictionary<string, int> GetCountsAndReset()
+    {
+        var result = _counts;
+        _counts = new Dictionary<string, int>();  // ← ここも危険！
+        return result;
+    }
 }
 ```
 
-<br>
-
 ### ⚠️ 複数スレッドから同時アクセスすると...？
 
+
 ---
+
+# 複数スレッドから同時アクセス
+
+<style scoped>
+pre { font-size: 0.5em; }
+</style>
+
+```cs
+static async Task Step1_ShowNotThreadSafe()
+{
+    // テスト前にGCを実行し、メモリ状態をクリーンにする
+    GC.Collect();
+    GC.WaitForPendingFinalizers();
+    await Task.Delay(200); // 安定待ち
+
+    var counter = new MethodCounter_NotThreadSafe();
+    long exceptionCount = 0;
+
+    // 100スレッドを同時に起動
+    var tasks = Enumerable.Range(0, ThreadCount).Select(_ => Task.Run(() =>
+    {
+        for (int i = 0; i < CallsPerThread; i++)
+        {
+            try
+            {
+                counter.Record("TestMethod");
+            }
+            catch
+            {
+                // 例外が発生したらカウント（Dictionary破損時など）
+                Interlocked.Increment(ref exceptionCount);
+            }
+        }
+    }));
+
+    await Task.WhenAll(tasks);
+
+    // 結果を表示
+    Console.WriteLine($"  -> 期待したカウント: {TotalCalls:N0}");
+    Console.WriteLine($"  -> 実際のカウント:   {counter.GetCountsAndReset()["TestMethod"]:N0}");
+    Console.WriteLine($"  -> 例外の発生回数:   {exceptionCount:N0}");
+}
+```
+
+---
+<style scoped>
+h2,h3 { font-size : 0.9em;}
+li { font-size: 0.8em; }
+</style>
 
 # 結果：データが壊れる 💥
 
 ## テスト条件
 - 100スレッド × 10,000回 = 合計100万回の呼び出し
 
-```console
-スレッドセーフでない実装の問題点
---------------------------------------------------
-  -> 期待したカウント: 1,000,000
-  -> 実際のカウント:   112,644  ❌
-  -> 例外の発生回数:   0
+![test1_thread_unsafe](test1_thread_unsafe.png)
 
-  [結論] マルチスレッド環境では全く信頼できません
+
+---
+
+<style scoped>
+pre { font-size: 1.em; }
+h2,h3 { font-size : 0.9em;}
+li { font-size: 1.0em; }
+</style>
+
+# 問題の原因
+
+
+
+```cs
+public class MethodCounter_NotThreadSafe : IMethodCounter
+{
+    private Dictionary<string, int> _counts = new();
+
+    public void Record(string methodName)
+    {
+        if (_counts.ContainsKey(methodName))
+            _counts[methodName]++;  // ← アトミックではない
+        else
+            _counts[methodName] = 1;
+    }
+
+    public Dictionary<string, int> GetCountsAndReset()
+    {
+        var result = _counts;
+        _counts = new Dictionary<string, int>();  // ← 別スレッドでは古い辞書を持つ可能性がある
+        return result;
+    }
+}
 ```
 
-### 問題の原因
 - <span class="danger">データ不整合</span>: `++`操作はアトミックではない
 - <span class="danger">例外リスク</span>: `Dictionary`の内部構造が破損する可能性
 
@@ -159,11 +244,18 @@ speaker notes:
 - 実際の本番環境では予期しない例外でシステムダウンも
 -->
 
+
+
 ---
 
 # 解決策1：`lock`で守る 🔒
 
 ## 相互排他による安全性の確保
+
+<style scoped>
+pre { font-size: 0.65em; }
+h3,li {font-size:0.7em;}
+</style>
 
 ```cs
 public class MethodCounter_WithLock : IMethodCounter
@@ -181,23 +273,70 @@ public class MethodCounter_WithLock : IMethodCounter
                 _counts[methodName] = 1;
         }
     }
+
+    public Dictionary<string, int> GetCountsAndReset()
+    {
+        lock (_lock)  // 読み取りも保護が必要
+        {
+            var result = _counts;
+            _counts = new Dictionary<string, int>();
+            return result;
+        }
+    }
 }
 ```
 
-### ✅ これで処理は安全に！
-
+### ポイント
+- **例外処理が不要**: lockで保護されているため、Dictionary破損は起こらない
+- **カウントが正確**: 相互排他により、すべての操作が順序通りに実行される
+  
 ---
+
+# マルチスレッドでLock版を呼び出しテスト
+
+<style scoped>
+pre { font-size: 0.7em; }
+h3,li { font-size: 0.8em; }
+</style>
+
+```cs
+static async Task Step2_ShowWithLock()
+{
+    // テスト前にGCを実行し、メモリ状態をクリーンにする
+    GC.Collect();
+    GC.WaitForPendingFinalizers();
+    await Task.Delay(200); // 安定待ち
+
+    var counter = new MethodCounter_WithLock();
+
+    // 100スレッドを同時に起動（例外処理は不要）
+    var tasks = Enumerable.Range(0, ThreadCount).Select(_ => Task.Run(() =>
+    {
+        for (int i = 0; i < CallsPerThread; i++)
+        {
+            counter.Record("TestMethod");
+        }
+    }));
+
+    await Task.WhenAll(tasks);
+
+    // 結果を表示（カウントは必ず正確）
+    Console.WriteLine($"  -> 期待したカウント: {TotalCalls:N0}");
+    Console.WriteLine($"  -> 実際のカウント:   {counter.GetCountsAndReset()["TestMethod"]:N0}");
+    
+    // 結論：'lock'を使えば、安全で正確なカウンターを簡単に実装できます
+}
+```
+
+- 複数スレッドで書き込み、正しくカウントされるかを確認
+  
+---
+
+
 
 # `lock`版の実行結果
 
-```console
-'lock'によるスレッドセーフな実装
---------------------------------------------------
-  -> 期待したカウント: 1,000,000
-  -> 実際のカウント:   1,000,000  ✅
-
-  [結論] 'lock'を使えば、安全で正確なカウンターを実装できます
-```
+![test2_lock_safe](test2_lock_safe.png)
 
 ## 🎉 問題解決！
 
@@ -210,6 +349,8 @@ speaker notes:
 - 正確性は保証されたが、性能への影響が気になる
 - 高頻度アクセスでは待機時間が累積する可能性
 -->
+
+
 
 ---
 
@@ -245,6 +386,10 @@ finally
 
 ## `ConcurrentQueue<T>`を使った高速化
 
+<style scoped>
+pre { font-size: 0.7em; }
+</style>
+
 ```cs
 public class MethodCounter_LockFree : IMethodCounter
 {
@@ -252,16 +397,26 @@ public class MethodCounter_LockFree : IMethodCounter
     
     public void Record(string methodName)
     {
-        _events.Enqueue(methodName);  // lockなし！
+        _events.Enqueue(methodName);  // lockなしで超高速！
     }
     
     public Dictionary<string, int> GetCountsAndReset()
     {
-        // Interlocked.Exchangeでアトミックに交換
+        // キューをアトミックに新しいものと交換
         var currentQueue = Interlocked.Exchange(
             ref _events, new ConcurrentQueue<string>()
         );
-        // 後で集計...
+        
+        // 集計処理（この時点でcurrentQueueは他スレッドから触られない）
+        var counts = new Dictionary<string, int>();
+        while (currentQueue.TryDequeue(out var methodName))
+        {
+            if (counts.ContainsKey(methodName))
+                counts[methodName]++;
+            else
+                counts[methodName] = 1;
+        }
+        return counts;
     }
 }
 ```
@@ -319,14 +474,7 @@ h3 { font-size: 0.9rem; }
 
 # 性能比較：驚きの結果！
 
-```console
-パフォーマンス比較結果（3秒間の書き込み性能テスト）
---------------------------------------------------
-  -> 🔒 Lock版:        9,146,396 件/秒
-  -> ⚡ Lock-free版:   14,775,923 件/秒
-
-  [結論] Lock-Free版はLock版の約1.62倍高速！
-```
+![test3_performance](test3_performance.png)
 
 ### 🚀 これで速度も正確性も完璧...？
 
@@ -342,17 +490,9 @@ speaker notes:
 
 # Lock-Free版の落とし穴 😱
 
-## 書き込みと読み出しを同時実行すると...
+## 大量の書き込みと大量の読み出しを同時実行すると...
 
-```console
-Lock-Free版の高負荷テスト結果
---------------------------------------------------
-  -> 書き込み総数: 151,192,646
-  -> 読み取り総数: 151,192,644
-  -> ロストした数: 2  ⚠️
-
-  [結論] わずかですが、データがロストしました！
-```
+![test4_data_loss](test4_data_loss.png)
 
 ### 🤔 なぜデータが失われるのか？
 
@@ -606,6 +746,298 @@ h3 { font-size: 0.9rem; } */
 - **開発速度重視**: lock を使用
 - **性能要件厳しい**: 専用プリミティブ検討
 - **複雑な同期**: 複数プリミティブ組み合わせ
+
+---
+
+# テストコード：スレッドセーフでない実装の検証
+
+<style scoped>
+pre { font-size: 0.55em; }
+</style>
+
+```cs
+// 100スレッドから同時にアクセス
+var counter = new MethodCounter_NotThreadSafe();
+long exceptionCount = 0;
+
+var tasks = Enumerable.Range(0, 100).Select(_ => Task.Run(() =>
+{
+    for (int i = 0; i < 10000; i++)
+    {
+        try
+        {
+            counter.Record("TestMethod");
+        }
+        catch
+        {
+            Interlocked.Increment(ref exceptionCount);
+        }
+    }
+}));
+
+await Task.WhenAll(tasks);
+
+Console.WriteLine($"期待値: 1,000,000");
+Console.WriteLine($"実際値: {counter.GetCountsAndReset()["TestMethod"]}");
+Console.WriteLine($"例外数: {exceptionCount}");
+```
+
+---
+
+# パフォーマンステストの完全実装
+
+<style scoped>
+pre { font-size: 0.45em; }
+</style>
+
+```cs
+static async Task Step3_ComparePerformance()
+{
+    const int durationSeconds = 3;
+
+    // --- Lock版のテスト ---
+    // テスト前にGCを実行し、メモリ状態をクリーンにする
+    GC.Collect();
+    GC.WaitForPendingFinalizers();
+    await Task.Delay(200); // 安定待ち
+
+    var lockCounter = new MethodCounter_WithLock();
+    long lockWrites = await RunWriteOnlyTest(lockCounter, durationSeconds);
+    Console.WriteLine($"  -> ✅ Lock版:      {lockWrites / durationSeconds,15:N0} 件/秒");
+
+    // --- Lock-free版のテスト ---
+    GC.Collect();
+    GC.WaitForPendingFinalizers();
+    await Task.Delay(200);
+
+    var lockFreeCounter = new MethodCounter_LockFree();
+    long lockFreeWrites = await RunWriteOnlyTest(lockFreeCounter, durationSeconds);
+    Console.WriteLine($"  -> ⚡ Lock-free版: {lockFreeWrites / durationSeconds,15:N0} 件/秒");
+
+    double speedup = (double)lockFreeWrites / lockWrites;
+    Console.WriteLine($"\n  [結論] Lock-Free版はLock版の約{speedup:F2}倍高速！");
+}
+
+// RunWriteOnlyTestヘルパーメソッド
+static async Task<long> RunWriteOnlyTest(IMethodCounter counter, int durationSeconds)
+{
+    long totalWritten = 0;
+    var cts = new CancellationTokenSource();
+    var keys = Enumerable.Range(0, 100).Select(i => $"Method_{i}").ToArray();
+    
+    var writerTasks = Enumerable.Range(0, 100)
+        .Select(threadIndex => Task.Run(() =>
+        {
+            var random = new Random(threadIndex);
+            while (!cts.IsCancellationRequested)
+            {
+                counter.Record(keys[random.Next(keys.Length)]);
+                Interlocked.Increment(ref totalWritten);
+            }
+        })).ToList();
+    
+    await Task.Delay(TimeSpan.FromSeconds(durationSeconds));
+    cts.Cancel();
+    await Task.WhenAll(writerTasks);
+    return totalWritten;
+}
+```
+
+---
+
+# データロストテストの完全実装
+
+<style scoped>
+pre { font-size: 0.45em; }
+</style>
+
+```cs
+static async Task Step4_ShowLockFreeDataLoss()
+{
+    // テスト前にGCを実行し、メモリ状態をクリーンにする
+    GC.Collect();
+    GC.WaitForPendingFinalizers();
+    await Task.Delay(200); // 安定待ち
+
+    var counter = new MethodCounter_LockFree();
+    long totalWritten = 0;
+    long totalRead = 0;
+    var cts = new CancellationTokenSource();
+
+    // 100スレッドが継続的に書き込み
+    var writerTasks = Enumerable.Range(0, ThreadCount).Select(_ => Task.Run(() =>
+    {
+        while (!cts.IsCancellationRequested)
+        {
+            counter.Record("Event");
+            Interlocked.Increment(ref totalWritten);
+        }
+    })).ToList(); // タスクを開始させる（Enumerableのままだと遅延実行になってしまう）
+
+    // 1スレッドが定期的に読み出し
+    var readerTask = Task.Run(async () =>
+    {
+        while (!cts.IsCancellationRequested)
+        {
+            var c = counter.GetCountsAndReset();
+            Interlocked.Add(ref totalRead, c.Values.Sum());
+            await Task.Delay(2); // 2ms間隔で読み出し
+        }
+    });
+
+    await Task.Delay(5000); // 5秒間テスト
+    cts.Cancel();
+    await Task.WhenAll(writerTasks.Append(readerTask));
+    
+    // 残りのデータを回収（重要！）
+    totalRead += counter.GetCountsAndReset().Values.Sum();
+
+    Console.WriteLine($"  -> 書き込み総数: {totalWritten:N0}");
+    Console.WriteLine($"  -> 読み取り総数: {totalRead:N0}");
+    Console.WriteLine($"  -> ロストした数: {totalWritten - totalRead:N0}");
+}
+```
+
+---
+
+# 実際の使用例：Webアプリケーション
+
+<style scoped>
+pre { font-size: 0.55em; }
+</style>
+
+```cs
+// ASP.NET Core での利用例
+public class MetricsService
+{
+    private readonly IMethodCounter _counter;
+    
+    public MetricsService(IConfiguration config)
+    {
+        // 設定に応じて実装を選択
+        _counter = config.GetValue<bool>("UseHighPerformanceCounter")
+            ? new MethodCounter_LockFree()
+            : new MethodCounter_WithLock();
+    }
+    
+    // APIエンドポイントの呼び出しを記録
+    public void RecordApiCall(string endpoint)
+    {
+        _counter.Record($"API:{endpoint}");
+    }
+    
+    // メトリクスを定期的に収集
+    public async Task CollectMetricsAsync()
+    {
+        while (true)
+        {
+            await Task.Delay(TimeSpan.FromSeconds(60));
+            var metrics = _counter.GetCountsAndReset();
+            
+            // ログやモニタリングサービスに送信
+            foreach (var (method, count) in metrics)
+            {
+                _logger.LogInformation($"{method}: {count} calls/min");
+            }
+        }
+    }
+}
+```
+
+---
+
+# ベンチマーク実装：公平な比較のために
+
+<style scoped>
+pre { font-size: 0.55em; }
+</style>
+
+```cs
+// BenchmarkDotNetを使った正確な測定
+[MemoryDiagnoser]
+[SimpleJob(RuntimeMoniker.Net80)]
+public class CounterBenchmark
+{
+    private MethodCounter_WithLock _lockCounter;
+    private MethodCounter_LockFree _lockFreeCounter;
+    private string[] _methodNames;
+    
+    [GlobalSetup]
+    public void Setup()
+    {
+        _lockCounter = new MethodCounter_WithLock();
+        _lockFreeCounter = new MethodCounter_LockFree();
+        _methodNames = Enumerable.Range(0, 100)
+            .Select(i => $"Method_{i}")
+            .ToArray();
+    }
+    
+    [Benchmark(Baseline = true)]
+    public void WithLock()
+    {
+        Parallel.For(0, 1000, i =>
+        {
+            _lockCounter.Record(_methodNames[i % 100]);
+        });
+    }
+    
+    [Benchmark]
+    public void LockFree()
+    {
+        Parallel.For(0, 1000, i =>
+        {
+            _lockFreeCounter.Record(_methodNames[i % 100]);
+        });
+    }
+}
+```
+
+---
+
+# ヘルパーメソッド：テスト環境の管理
+
+<style scoped>
+pre { font-size: 0.55em; }
+</style>
+
+```cs
+// 実行環境情報を表示
+static void PrintExecutionEnvironment()
+{
+    Console.ForegroundColor = ConsoleColor.DarkYellow;
+    Console.WriteLine("-- 実行環境情報 --");
+    // Environment.ProcessorCountは、tasksetなどで制限された場合、
+    // その制限後の数を返す
+    Console.WriteLine($"このプロセスが利用可能な論理プロセッサ数: {Environment.ProcessorCount}");
+    Console.WriteLine("--------------------");
+    Console.ResetColor();
+}
+
+// セクションヘッダーを表示
+static void PrintHeader(string title)
+{
+    Console.WriteLine("--------------------------------------------------");
+    Console.WriteLine($"## {title}");
+    Console.WriteLine("--------------------------------------------------");
+}
+
+// メインメソッド
+static async Task Main(string[] args)
+{
+    Console.WriteLine("=== マルチスレッドカウンター LTデモ ===\n");
+    
+    PrintExecutionEnvironment();
+    
+    await Step1_ShowNotThreadSafe();
+    await Step2_ShowWithLock();
+    await Step3_ComparePerformance();
+    await Step4_ShowLockFreeDataLoss();
+    
+    Console.WriteLine("=== デモ終了 ===");
+    Console.WriteLine("\n完了！何かキーを押してください...");
+    Console.ReadKey();
+}
+```
 
 ---
 
