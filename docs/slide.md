@@ -504,17 +504,21 @@ public class AsyncMethodCounter
 
 <style scoped>
 table { 
-  font-size: 0.85em;
+  font-size: 1.0em;
   width: 95%;
 }
 th, td { 
   padding: 8px;
   text-align: center;
-  font-size: 0.9em;
+  font-size: 1.0em;
 }
 </style>
+    
+<br>
+<br>
+      
 
-<div style="font-size: 0.9em">
+<!-- <div style="font-size: 1.0rem"> -->
 
 | 実装方式 | 正確性 | 性能 | 適用場面 |
 |:---------|:------:|:----:|:--------|
