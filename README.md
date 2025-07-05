@@ -44,8 +44,7 @@ multithread-lt/
 ├── multithread-lt.csproj   # プロジェクトファイル
 ├── README.md              # このファイル
 └── docs/
-    ├── slidev2.md         # Marp形式のプレゼンテーション
-    └── result.png         # 実行結果のスクリーンショット
+    ├── slide.md         # Marp形式のプレゼンテーション
 ```
 
 ## 実装の特徴
@@ -114,11 +113,9 @@ multithread-lt/
 
 詳細な解説は以下のプレゼンテーションファイルをご覧ください：
 
-- [Marpプレゼンテーション](docs/slidev2.md) - ビジュアルを重視したスライド形式
+* **Docswell**: [マルチスレッドプログラミングを理解する](https://www.docswell.com/s/toutou/K4E388-2025-07-05-165404)
+* [markdown](docs/slide.md)
 
-## ライセンス
-
-このプロジェクトは教育目的で作成されています。自由に参照・改変してご利用ください。
 
 ## 作者
 
