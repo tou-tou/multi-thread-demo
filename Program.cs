@@ -156,6 +156,7 @@ class Program
         await Task.Delay(200); // 安定待ち
 
         var counter = new MethodCounter_LockFree();
+        //var counter = new MethodCounter_WithLock(); // Lock-Free版の代わりにLock版を使う
         long totalWritten = 0;
         long totalRead = 0;
         var cts = new CancellationTokenSource();

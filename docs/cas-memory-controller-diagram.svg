@@ -1,0 +1,102 @@
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景 -->
+  <rect width="800" height="600" fill="#f5f5f5"/>
+  
+  <!-- タイトル -->
+  <text x="400" y="30" text-anchor="middle" font-size="20" font-weight="bold">マルチコア環境でのCAS競合解決</text>
+  
+  <!-- CPUコア群 -->
+  <g id="cpu-cores">
+    <!-- CPU1 -->
+    <g transform="translate(100, 80)">
+      <rect x="0" y="0" width="120" height="100" fill="#ffcdd2" stroke="#d32f2f" stroke-width="2"/>
+      <text x="60" y="25" text-anchor="middle" font-size="14" font-weight="bold">CPU Core 1</text>
+      <text x="60" y="45" text-anchor="middle" font-size="12">Thread A</text>
+      <rect x="20" y="55" width="80" height="30" fill="#e1f5fe" stroke="#0288d1" stroke-width="1"/>
+      <text x="60" y="75" text-anchor="middle" font-size="11">CAS命令</text>
+    </g>
+    
+    <!-- CPU2 -->
+    <g transform="translate(340, 80)">
+      <rect x="0" y="0" width="120" height="100" fill="#ffcdd2" stroke="#d32f2f" stroke-width="2"/>
+      <text x="60" y="25" text-anchor="middle" font-size="14" font-weight="bold">CPU Core 2</text>
+      <text x="60" y="45" text-anchor="middle" font-size="12">Thread B</text>
+      <rect x="20" y="55" width="80" height="30" fill="#e1f5fe" stroke="#0288d1" stroke-width="1"/>
+      <text x="60" y="75" text-anchor="middle" font-size="11">CAS命令</text>
+    </g>
+    
+    <!-- CPU3 -->
+    <g transform="translate(580, 80)">
+      <rect x="0" y="0" width="120" height="100" fill="#ffcdd2" stroke="#d32f2f" stroke-width="2"/>
+      <text x="60" y="25" text-anchor="middle" font-size="14" font-weight="bold">CPU Core 3</text>
+      <text x="60" y="45" text-anchor="middle" font-size="12">Thread C</text>
+      <rect x="20" y="55" width="80" height="30" fill="#e1f5fe" stroke="#0288d1" stroke-width="1"/>
+      <text x="60" y="75" text-anchor="middle" font-size="11">CAS命令</text>
+    </g>
+  </g>
+  
+  <!-- システムバス -->
+  <rect x="50" y="230" width="700" height="40" fill="#e1f5fe" stroke="#0288d1" stroke-width="2"/>
+  <text x="400" y="255" text-anchor="middle" font-size="14" font-weight="bold">システムバス</text>
+  
+  <!-- メモリコントローラー -->
+  <g id="memory-controller">
+    <rect x="250" y="320" width="300" height="120" fill="#ffeb3b" stroke="#f57f17" stroke-width="3"/>
+    <text x="400" y="345" text-anchor="middle" font-size="16" font-weight="bold">メモリコントローラー</text>
+    
+    <!-- アービトレーション -->
+    <rect x="270" y="360" width="260" height="60" fill="white" stroke="#666" stroke-width="1"/>
+    <text x="400" y="380" text-anchor="middle" font-size="12" font-weight="bold">アービトレーション</text>
+    <text x="400" y="395" text-anchor="middle" font-size="10">1. 要求を物理的にシリアライズ</text>
+    <text x="400" y="410" text-anchor="middle" font-size="10">2. 最初の要求のみを処理</text>
+  </g>
+  
+  <!-- メインメモリ -->
+  <g id="main-memory">
+    <rect x="300" y="480" width="200" height="80" fill="#e8f5e9" stroke="#4caf50" stroke-width="2"/>
+    <text x="400" y="505" text-anchor="middle" font-size="14" font-weight="bold">メインメモリ</text>
+    <rect x="320" y="520" width="160" height="30" fill="white" stroke="#666" stroke-width="1"/>
+    <text x="400" y="540" text-anchor="middle" font-size="12">SyncBlock: 0 → A</text>
+  </g>
+  
+  <!-- 矢印の定義 -->
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+    </marker>
+    <marker id="arrow-red" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#d32f2f"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#4caf50"/>
+    </marker>
+  </defs>
+  
+  <!-- CPUからシステムバスへの要求 -->
+  <path d="M 160 180 L 160 230" stroke="#d32f2f" stroke-width="2" marker-end="url(#arrow-red)" fill="none"/>
+  <path d="M 400 180 L 400 230" stroke="#d32f2f" stroke-width="2" marker-end="url(#arrow-red)" fill="none"/>
+  <path d="M 640 180 L 640 230" stroke="#d32f2f" stroke-width="2" marker-end="url(#arrow-red)" fill="none"/>
+  
+  <!-- システムバスからメモリコントローラーへ -->
+  <path d="M 400 270 L 400 320" stroke="#0288d1" stroke-width="3" marker-end="url(#arrow)" fill="none"/>
+  
+  <!-- メモリコントローラーからメモリへ -->
+  <path d="M 400 440 L 400 480" stroke="#4caf50" stroke-width="3" marker-end="url(#arrow-green)" fill="none"/>
+  
+  <!-- タイミング表示 -->
+  <g transform="translate(50, 200)">
+    <text x="0" y="0" font-size="11" fill="#d32f2f">同時!</text>
+  </g>
+  <g transform="translate(290, 200)">
+    <text x="0" y="0" font-size="11" fill="#d32f2f">同時!</text>
+  </g>
+  <g transform="translate(530, 200)">
+    <text x="0" y="0" font-size="11" fill="#d32f2f">同時!</text>
+  </g>
+  
+  <!-- 結果表示 -->
+  <g transform="translate(50, 290)">
+    <text x="0" y="0" font-size="12" font-weight="bold">結果:</text>
+    <text x="50" y="0" font-size="11" fill="#4caf50">CPU1が成功</text>
+  </g>
+</svg>

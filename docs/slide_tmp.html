@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>slide.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<!-- _class: lead -->
+<h1 id="%E3%83%9E%E3%83%AB%E3%83%81%E3%82%B9%E3%83%AC%E3%83%83%E3%83%89%E5%AE%9F%E8%A3%85%E3%82%92%E7%90%86%E8%A7%A3%E3%81%99%E3%82%8B">マルチスレッド実装を理解する</h1>
+<h3 id="%E6%AD%A3%E7%A2%BA%E6%80%A7%E3%81%A8%E3%83%91%E3%83%95%E3%82%A9%E3%83%BC%E3%83%9E%E3%83%B3%E3%82%B9%E3%81%AE%E3%83%90%E3%83%A9%E3%83%B3%E3%82%B9">正確性とパフォーマンスのバランス</h3>
+<br>
+<p><strong>発表者：toutou ( <strong>X</strong>: <a href="https://tx.com/__tou__tou">@__tou__tou</a> )</strong></p>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<div style="position: absolute; bottom: 10px; left: 50%; transform: translateX(50%); font-size: 0.6em; color: #666; text-align: center; width: 80%;">
+&#x203B; &#x672C;&#x8CC7;&#x6599;&#x306F;AI&#xFF08;Claude&#xFF09;&#x3092;&#x6D3B;&#x7528;&#x3057;&#x3066;&#x4F5C;&#x6210;&#x3055;&#x308C;&#x3066;&#x3044;&#x307E;&#x3059;&#x3002;<br>
+&#x6280;&#x8853;&#x7684;&#x306A;&#x5185;&#x5BB9;&#x306B;&#x3064;&#x3044;&#x3066;&#x306F;&#x6B63;&#x78BA;&#x6027;&#x306B;&#x52AA;&#x3081;&#x3066;&#x3044;&#x307E;&#x3059;&#x304C;&#x3001;&#x8AA4;&#x308A;&#x304C;&#x542B;&#x307E;&#x308C;&#x308B;&#x53EF;&#x80FD;&#x6027;&#x304C;&#x3042;&#x308A;&#x307E;&#x3059;&#x3002;
+</div>
+<!-- 
+speaker notes:
+- マルチスレッド環境でのカウンター実装の課題について説明します
+- 3つの実装方法を比較し、それぞれのトレードオフを解説します
+-->
+<hr>
+<h1 id="%E3%83%87%E3%83%A2%E3%82%84%E3%82%B9%E3%83%A9%E3%82%A4%E3%83%89%E3%81%AE%E3%83%AA%E3%83%B3%E3%82%AF">デモやスライドのリンク</h1>
+<br>
+<ul>
+<li><strong>GitHub</strong>: <a href="https://github.com/tou-tou/multi-thread-demo">multi-thread-demo</a></li>
+<li></li>
+</ul>
+<hr>
+<h1 id="%E6%A6%82%E8%A6%81">概要</h1>
+<h2 id="%E6%9C%AC%E7%99%BA%E8%A1%A8%E3%81%AE%E7%9B%AE%E7%9A%84">本発表の目的</h2>
+<p>マルチスレッド環境におけるカウンター実装の課題と解決策を検討する</p>
+<h2 id="%E5%AF%BE%E8%B1%A1%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0%E3%81%AE%E8%A6%81%E4%BB%B6">対象システムの要件</h2>
+<ul>
+<li>秒間数千回のメソッド呼び出し</li>
+<li>複数スレッドからの同時アクセス</li>
+<li>システム負荷の監視指標として使用</li>
+</ul>
+<h2 id="%E6%A4%9C%E8%A8%8E%E3%81%99%E3%82%8B%E5%AE%9F%E8%A3%85%E6%96%B9%E5%BC%8F">検討する実装方式</h2>
+<ol>
+<li>非スレッドセーフ実装</li>
+<li>Lock実装</li>
+<li>Lock-Free実装</li>
+</ol>
+<!-- 
+speaker notes:
+- まずは素朴な実装から始めてみます
+- 高頻度アクセスという要件が重要なポイントです
+-->
+<hr>
+<style scoped>
+pre { font-size: 0.7em; }
+li { font-size: 0.8em; }
+h4 { font-size:0.8em;}
+</style>
+<h1 id="1-%E9%9D%9E%E3%82%B9%E3%83%AC%E3%83%83%E3%83%89%E3%82%BB%E3%83%BC%E3%83%95%E5%AE%9F%E8%A3%85">1. 非スレッドセーフ実装</h1>
+<pre class="hljs"><code><div><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title">MethodCounter_NotThreadSafe</span> : <span class="hljs-title">IMethodCounter</span>
+{
+    <span class="hljs-keyword">private</span> Dictionary&lt;<span class="hljs-keyword">string</span>, <span class="hljs-keyword">int</span>&gt; _counts = <span class="hljs-keyword">new</span>();
+
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Record</span>(<span class="hljs-params"><span class="hljs-keyword">string</span> methodName</span>)</span>
+    {
+        <span class="hljs-keyword">if</span> (_counts.ContainsKey(methodName))
+        {
+            <span class="hljs-comment">// 非アトミックなRead-Modify-Write処理</span>
+            <span class="hljs-comment">// この3ステップは不可分ではないため、競合状態（Race Condition）を引き起こす。</span>
+            <span class="hljs-keyword">var</span> count = _counts[methodName]; <span class="hljs-comment">// 1. 読み込み (Read)</span>
+            count = count + <span class="hljs-number">1</span>;               <span class="hljs-comment">// 2. 変更 (Modify)</span>
+            _counts[methodName] = count;     <span class="hljs-comment">// 3. 書き込み (Write)</span>
+        }
+        <span class="hljs-keyword">else</span>
+        {
+            _counts[methodName] = <span class="hljs-number">1</span>;
+        }
+    }
+}
+</div></code></pre>
+<h4 id="%E5%95%8F%E9%A1%8C%E7%82%B9%E3%82%AB%E3%82%A6%E3%83%B3%E3%83%88%E3%82%A2%E3%83%83%E3%83%97%E3%81%8C%E3%82%A2%E3%83%88%E3%83%9F%E3%83%83%E3%82%AF%E6%93%8D%E4%BD%9C%E3%81%A7%E3%81%AA%E3%81%84%E3%81%9F%E3%82%81%E7%AB%B6%E5%90%88%E3%81%99%E3%82%8B%E5%8F%AF%E8%83%BD%E6%80%A7%E3%81%8C%E3%81%82%E3%82%8B">問題点：カウントアップがアトミック操作でないため、競合する可能性がある</h4>
+<ul>
+<li>ケース1：マルチコアでの並列実行
+<ul>
+<li>コア1のスレッドAがメモリから値 <code>5</code> を読む。ほぼ同時に、コア2のスレッドBもメモリから値 <code>5</code> を読む。</li>
+<li>両方のスレッドがそれぞれ <code>5 + 1</code> を計算し、結果の <code>6</code> をメモリに書き戻そうとする。</li>
+</ul>
+</li>
+<li>ケース2：シングルコアでの並行実行（コンテキストスイッチ）
+<ul>
+<li>スレッドAがメモリから値 <code>5</code> を読んだ直後、OSがスレッドBに処理を切り替える。</li>
+<li>スレッドBが値 <code>5</code> を読み、計算し、<code>6</code> を書き戻す。</li>
+<li>その後、処理が戻ってきたスレッドAは、最初に読んだ <code>5</code> を元に計算してしまい、再度 <code>6</code> を上書きしてしまう。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h1 id="%E8%A4%87%E6%95%B0%E3%82%B9%E3%83%AC%E3%83%83%E3%83%89%E3%81%A7%E3%82%AB%E3%82%A6%E3%83%B3%E3%83%88">複数スレッドでカウント</h1>
+<style scoped>
+pre { font-size: 0.7em; }
+</style>
+<pre class="hljs"><code><div><span class="hljs-function"><span class="hljs-keyword">static</span> <span class="hljs-keyword">async</span> Task <span class="hljs-title">Step1_ShowNotThreadSafe</span>(<span class="hljs-params"></span>)</span>
+{
+    <span class="hljs-keyword">var</span> counter = <span class="hljs-keyword">new</span> MethodCounter_NotThreadSafe();
+    <span class="hljs-keyword">long</span> exceptionCount = <span class="hljs-number">0</span>;
+
+    <span class="hljs-comment">// 100スレッドを同時に起動</span>
+    <span class="hljs-comment">// Task.Run() で カウントタスク を ThreadPoolのスレッドで実行する</span>
+    <span class="hljs-keyword">var</span> tasks = Enumerable.Range(<span class="hljs-number">0</span>, ThreadCount).Select(_ =&gt; Task.Run(() =&gt;
+    {
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; CallsPerThread; i++)
+        {
+            <span class="hljs-keyword">try</span>
+            {
+                counter.Record(<span class="hljs-string">"TestMethod"</span>);
+            }
+            <span class="hljs-keyword">catch</span>
+            {
+                <span class="hljs-comment">// 例外が発生したらカウント（Dictionary破損時など）</span>
+                Interlocked.Increment(<span class="hljs-keyword">ref</span> exceptionCount);
+            }
+        }
+    }));
+
+    <span class="hljs-keyword">await</span> Task.WhenAll(tasks);
+}
+</div></code></pre>
+<hr>
+<style scoped>
+h2,h3 { font-size : 0.9em;}
+li { font-size: 0.8em; }
+section p {
+  text-align: center;
+}
+</style>
+<h1 id="%E7%B5%90%E6%9E%9C%E3%83%87%E3%83%BC%E3%82%BF%E4%B8%8D%E6%95%B4%E5%90%88">結果：データ不整合</h1>
+<h2 id="%E3%83%86%E3%82%B9%E3%83%88%E6%9D%A1%E4%BB%B6">テスト条件</h2>
+<ul>
+<li>100スレッド × 10,000回 = 合計100万回の呼び出し</li>
+</ul>
+<p><img src="file:///home/toutou/git_local/multithread-lt/docs/test1_thread_unsafe.png" alt="test1_thread_unsafe"></p>
+<h2 id="%E7%99%BA%E7%94%9F%E3%81%97%E3%81%9F%E5%95%8F%E9%A1%8C">発生した問題</h2>
+<ul>
+<li>カウント値の不整合</li>
+<li>Dictionaryの内部構造破損による例外</li>
+</ul>
+<hr>
+<style scoped>
+section p {
+  text-align: center;
+}
+</style>
+<h1 id="%E5%95%8F%E9%A1%8C%E3%81%AE%E5%8E%9F%E5%9B%A012">問題の原因（1/2）</h1>
+<p><img src="file:///home/toutou/git_local/multithread-lt/docs/thread-memory-diagram.svg" alt="w:90%"></p>
+<hr>
+<style scoped>
+pre { font-size: 0.7em; }
+h2,h3 { font-size : 0.7em;}
+li { font-size: .8em; }
+</style>
+<h1 id="%E5%95%8F%E9%A1%8C%E3%81%AE%E5%8E%9F%E5%9B%A022">問題の原因（2/2）</h1>
+<pre class="hljs"><code><div><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title">MethodCounter_NotThreadSafe</span> : <span class="hljs-title">IMethodCounter</span>
+{
+    <span class="hljs-keyword">private</span> Dictionary&lt;<span class="hljs-keyword">string</span>, <span class="hljs-keyword">int</span>&gt; _counts = <span class="hljs-keyword">new</span>();
+
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Record</span>(<span class="hljs-params"><span class="hljs-keyword">string</span> methodName</span>)</span>
+    {
+        <span class="hljs-keyword">if</span> (_counts.ContainsKey(methodName))
+        {
+            <span class="hljs-comment">// 非アトミックなRead-Modify-Write処理</span>
+            <span class="hljs-comment">// この3ステップは不可分ではないため、競合状態（Race Condition）を引き起こす。</span>
+            <span class="hljs-keyword">var</span> count = _counts[methodName]; <span class="hljs-comment">// 1. 読み込み (Read)</span>
+            count = count + <span class="hljs-number">1</span>;               <span class="hljs-comment">// 2. 変更 (Modify)</span>
+            _counts[methodName] = count;     <span class="hljs-comment">// 3. 書き込み (Write)</span>
+        }
+        <span class="hljs-keyword">else</span>
+        {
+            _counts[methodName] = <span class="hljs-number">1</span>;
+        }
+    }
+}
+</div></code></pre>
+<h3 id="%E6%8A%80%E8%A1%93%E7%9A%84%E8%AA%B2%E9%A1%8C">技術的課題</h3>
+<ol>
+<li>
+<p><strong>共有データへの非同期アクセス</strong></p>
+<ul>
+<li>全スレッドがヒープ上の単一Dictionaryオブジェクトを共有</li>
+<li>保護機構なしで同時読み書き</li>
+</ul>
+</li>
+<li>
+<p><strong>Read-Modify-Write操作の非アトミック性</strong></p>
+<ul>
+<li><code>Record()</code>内での3つの個別操作</li>
+<li>操作間での割り込み発生によるカウント消失</li>
+</ul>
+</li>
+</ol>
+<!-- 
+speaker notes:
+- Read-Modify-Write操作の非アトミック性が原因
+- 実際の本番環境では予期しない例外でシステムダウンも
+-->
+<hr>
+<style scoped>
+pre { font-size: 0.8em; }
+h3 {font-size:0.8em;}
+li {font-size:0.8em;}
+</style>
+<h1 id="2-lock%E5%AE%9F%E8%A3%85">2. Lock実装</h1>
+<pre class="hljs"><code><div><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title">MethodCounter_WithLock</span> : <span class="hljs-title">IMethodCounter</span>
+{
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">readonly</span> <span class="hljs-keyword">object</span> _lock = <span class="hljs-keyword">new</span>();
+    <span class="hljs-keyword">private</span> Dictionary&lt;<span class="hljs-keyword">string</span>, <span class="hljs-keyword">int</span>&gt; _counts = <span class="hljs-keyword">new</span>();
+
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Record</span>(<span class="hljs-params"><span class="hljs-keyword">string</span> methodName</span>)</span>
+    {
+        <span class="hljs-keyword">lock</span> (_lock) <span class="hljs-comment">// 一度に1スレッドのみ実行</span>
+        {
+            <span class="hljs-keyword">if</span> (_counts.ContainsKey(methodName))
+                _counts[methodName]++;
+                <span class="hljs-comment">// 以下と同等</span>
+                <span class="hljs-comment">// var count = _counts[methodName]; // 1. 読み込み (Read)</span>
+                <span class="hljs-comment">// count = count + 1;               // 2. 変更 (Modify)</span>
+                <span class="hljs-comment">// _counts[methodName] = count;     // 3. 書き込み (Write)</span>
+            <span class="hljs-keyword">else</span>
+                _counts[methodName] = <span class="hljs-number">1</span>;
+        }
+    }
+}
+</div></code></pre>
+<h3 id="%E3%83%9D%E3%82%A4%E3%83%B3%E3%83%88">ポイント</h3>
+<ul>
+<li><strong>カウントが正確</strong>: lockステートメント内の相互排他により、すべての操作が順序通りに実行される</li>
+</ul>
+<hr>
+<h1 id="%E3%83%9E%E3%83%AB%E3%83%81%E3%82%B9%E3%83%AC%E3%83%83%E3%83%89%E3%81%A7lock%E5%AE%9F%E8%A3%85%E3%81%AE%E6%A4%9C%E8%A8%BC">マルチスレッドでLock実装の検証</h1>
+<style scoped>
+pre { font-size: 0.7em; }
+h3,li { font-size: 0.8em; }
+</style>
+<pre class="hljs"><code><div><span class="hljs-function"><span class="hljs-keyword">static</span> <span class="hljs-keyword">async</span> Task <span class="hljs-title">Step2_ShowWithLock</span>(<span class="hljs-params"></span>)</span>
+{
+    <span class="hljs-keyword">var</span> counter = <span class="hljs-keyword">new</span> MethodCounter_WithLock();
+
+    <span class="hljs-comment">// 100スレッドを同時に起動（例外処理は不要）</span>
+    <span class="hljs-keyword">var</span> tasks = Enumerable.Range(<span class="hljs-number">0</span>, ThreadCount).Select(_ =&gt; Task.Run(() =&gt;
+    {
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; CallsPerThread; i++)
+        {
+            counter.Record(<span class="hljs-string">"TestMethod"</span>);
+        }
+    }));
+
+    <span class="hljs-keyword">await</span> Task.WhenAll(tasks);
+
+    <span class="hljs-comment">// 結果を表示（カウントは必ず正確）</span>
+    Console.WriteLine(<span class="hljs-string">$"  -&gt; 期待したカウント: <span class="hljs-subst">{TotalCalls:N0}</span>"</span>);
+    Console.WriteLine(<span class="hljs-string">$"  -&gt; 実際のカウント:   <span class="hljs-subst">{counter.GetCountsAndReset()[<span class="hljs-string">"TestMethod"</span>]:N0}</span>"</span>);
+    
+    <span class="hljs-comment">// 結論：'lock'を使えば、安全で正確なカウンターを簡単に実装できます</span>
+}
+</div></code></pre>
+<ul>
+<li>複数スレッドで書き込み、正しくカウントされるかを確認</li>
+</ul>
+<hr>
+<style scoped>
+section p {
+  text-align: center;
+}
+</style>
+<h1 id="lock%E5%AE%9F%E8%A3%85%E3%81%AE%E7%B5%90%E6%9E%9C">Lock実装の結果</h1>
+<p><img src="file:///home/toutou/git_local/multithread-lt/docs/test2_lock_safe.png" alt="test2_lock_safe"></p>
+<h3 id="%E7%B5%90%E6%9E%9C">結果</h3>
+<ul>
+<li>カウント値の完全な一致</li>
+<li>例外の発生なし</li>
+</ul>
+<!-- 
+speaker notes:
+- 正確性は保証されたが、性能への影響が気になる
+- 高頻度アクセスでは待機時間が累積する可能性
+-->
+<hr>
+<style scoped>
+section p {
+  text-align: center;
+}
+</style>
+<h1 id="lock-%E3%81%AE%E4%BB%95%E7%B5%84%E3%81%BF12">lock の仕組み（1/2）</h1>
+<p><img src="file:///home/toutou/git_local/multithread-lt/docs/lock-memory-state-diagram.svg" alt="w:100%"></p>
+<hr>
+<style scoped>
+section p {
+  text-align: center;
+}
+</style>
+<h1 id="lock-%E3%81%AE%E4%BB%95%E7%B5%84%E3%81%BF22">lock の仕組み（2/2）</h1>
+<ul>
+<li>lockオブジェクトの取得は CPU レベルで「アトミック操作であること」が保証されている</li>
+<li>単一の割り込み不可能なCPU命令「Compare-And-Swap (CAS) 」で実現される</li>
+</ul>
+<p><img src="file:///home/toutou/git_local/multithread-lt/docs/cas-atomic-operation-diagram.svg" alt="w:100%"></p>
+<hr>
+<style scoped>
+section p {
+  text-align: center;
+}
+section img {
+  width: 56%;
+  height: auto; /* アスペクト比を維持 */
+}
+</style>
+<h1 id="lock%E5%8F%96%E5%BE%97%E3%81%AE%E7%AB%B6%E5%90%88%E8%A7%A3%E6%B1%BA">lock取得の競合解決</h1>
+<ul>
+<li>マルチコア（CPU）環境では、同時に CAS 命令を発行する可能性がある</li>
+<li>メモリコントローラーでメインメモリ上のlockオブジェクトを取得順がシリアライズされる</li>
+</ul>
+<p><img src="file:///home/toutou/git_local/multithread-lt/docs/cas-memory-controller-diagram.svg" alt="lock取得の競合解決"></p>
+<hr>
+<style scoped>
+/* このスライド専用のスタイルを定義 */
+.center-heading {
+  text-align: center; /* 水平方向の中央揃え */
+  padding-top: 18%;  /* 上からの余白で垂直位置を調整 */
+  font-size: 1.5em;    /* 文字を少し大きくする */
+}
+</style>
+<h1 id="lock%E5%AE%9F%E8%A3%85%E3%81%AE%E6%87%B8%E5%BF%B5%E4%BA%8B%E9%A0%85">Lock実装の懸念事項</h1>
+<div class="center-heading ">
+  &#x30B9;&#x30EC;&#x30C3;&#x30C9;&#x306E;&#x300C;lock&#x53D6;&#x5F97;&#x306E;&#x9806;&#x756A;&#x5F85;&#x3061;&#x300D;&#x304C;<br>
+  &#x30D1;&#x30D5;&#x30A9;&#x30FC;&#x30DE;&#x30F3;&#x30B9;&#x4F4E;&#x4E0B;&#x306B;&#x3064;&#x306A;&#x304C;&#x308B;&#x53EF;&#x80FD;&#x6027;
+</div>
+<hr>
+<style scoped>
+pre { font-size: 0.8em; }
+</style>
+<h1 id="%E5%8F%82%E8%80%83-lock%E5%AE%9F%E8%A3%85">[参考] Lock実装</h1>
+<pre class="hljs"><code><div><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title">MethodCounter_WithLock</span> : <span class="hljs-title">IMethodCounter</span>
+    {
+        <span class="hljs-keyword">private</span> <span class="hljs-keyword">readonly</span> <span class="hljs-keyword">object</span> _lock = <span class="hljs-keyword">new</span>();
+        <span class="hljs-keyword">private</span> Dictionary&lt;<span class="hljs-keyword">string</span>, <span class="hljs-keyword">int</span>&gt; _counts = <span class="hljs-keyword">new</span>();
+
+        <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Record</span>(<span class="hljs-params"><span class="hljs-keyword">string</span> methodName</span>)</span>
+        {
+            <span class="hljs-keyword">lock</span> (_lock)  <span class="hljs-comment">// ← スレッドが順番待ちでボトルネック</span>
+            {
+                <span class="hljs-keyword">if</span> (_counts.ContainsKey(methodName))
+                    _counts[methodName]++;
+                <span class="hljs-keyword">else</span>
+                    _counts[methodName] = <span class="hljs-number">1</span>;
+            }
+        }
+        
+        <span class="hljs-function"><span class="hljs-keyword">public</span> Dictionary&lt;<span class="hljs-keyword">string</span>, <span class="hljs-keyword">int</span>&gt; <span class="hljs-title">GetCountsAndReset</span>(<span class="hljs-params"></span>)</span>
+        {
+            <span class="hljs-comment">// 値を読み取るときに、保持しているカウントをリセットする</span>
+            <span class="hljs-comment">// このため lock が必要</span>
+            <span class="hljs-keyword">lock</span> (_lock)
+            {
+                <span class="hljs-keyword">var</span> result = _counts;
+                _counts = <span class="hljs-keyword">new</span> Dictionary&lt;<span class="hljs-keyword">string</span>, <span class="hljs-keyword">int</span>&gt;();
+                <span class="hljs-keyword">return</span> result;
+            }
+        }
+    }
+</div></code></pre>
+<hr>
+<style scoped>
+pre { font-size: 0.7em; }
+</style>
+<h1 id="3-lock-free%E5%AE%9F%E8%A3%85">3. Lock-Free実装</h1>
+<h2 id="concurrentqueuet%E3%82%92%E4%BD%BF%E3%81%A3%E3%81%9F%E9%AB%98%E9%80%9F%E5%8C%96"><code>ConcurrentQueue&lt;T&gt;</code>を使った高速化</h2>
+<pre class="hljs"><code><div><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title">MethodCounter_LockFree</span> : <span class="hljs-title">IMethodCounter</span>
+{
+    <span class="hljs-keyword">private</span> ConcurrentQueue&lt;<span class="hljs-keyword">string</span>&gt; _events = <span class="hljs-keyword">new</span>();
+    
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Record</span>(<span class="hljs-params"><span class="hljs-keyword">string</span> methodName</span>)</span>
+    {
+        _events.Enqueue(methodName);  <span class="hljs-comment">// lockなしで超高速！</span>
+        <span class="hljs-comment">// 以下と同等</span>
+        <span class="hljs-comment">//var currentQueue = _events;           // ステップ1: 参照をコピー</span>
+        <span class="hljs-comment">//_events = new ConcurrentQueue&lt;string&gt;(); // ステップ2: 新しいキューを代入</span>
+    }
+    
+    <span class="hljs-function"><span class="hljs-keyword">public</span> Dictionary&lt;<span class="hljs-keyword">string</span>, <span class="hljs-keyword">int</span>&gt; <span class="hljs-title">GetCountsAndReset</span>(<span class="hljs-params"></span>)</span>
+    {
+        <span class="hljs-comment">// Interlocked.Exchange は全CPUコア間で同期してアトミックなキュー交換を実行する</span>
+        <span class="hljs-comment">// GetCountsAndReset での一貫性は保証するが、Recordとの競合は防げない</span>
+        <span class="hljs-keyword">var</span> currentQueue = Interlocked.Exchange(
+            <span class="hljs-keyword">ref</span> _events, <span class="hljs-keyword">new</span> ConcurrentQueue&lt;<span class="hljs-keyword">string</span>&gt;()
+        );
+        
+        <span class="hljs-comment">// Queueにたまった要素をメソッド毎に集計</span>
+        <span class="hljs-keyword">var</span> counts = <span class="hljs-keyword">new</span> Dictionary&lt;<span class="hljs-keyword">string</span>, <span class="hljs-keyword">int</span>&gt;();
+        <span class="hljs-keyword">while</span> (currentQueue.TryDequeue(<span class="hljs-keyword">out</span> <span class="hljs-keyword">var</span> methodName))
+        {
+            <span class="hljs-keyword">if</span> (counts.ContainsKey(methodName))
+                counts[methodName]++;
+            <span class="hljs-keyword">else</span>
+                counts[methodName] = <span class="hljs-number">1</span>;
+        }
+        <span class="hljs-keyword">return</span> counts;
+    }
+}
+</div></code></pre>
+<hr>
+<style scoped>
+pre { font-size: 0.45em; }
+</style>
+<h1 id="lock%E5%AE%9F%E8%A3%85%E3%81%A8lock-free%E5%AE%9F%E8%A3%85%E3%81%AE%E6%AF%94%E8%BC%83">Lock実装とLock-Free実装の比較</h1>
+<pre class="hljs"><code><div><span class="hljs-function"><span class="hljs-keyword">static</span> <span class="hljs-keyword">async</span> Task <span class="hljs-title">Step3_ComparePerformance</span>(<span class="hljs-params"></span>)</span>
+{
+    <span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> durationSeconds = <span class="hljs-number">3</span>;
+
+    <span class="hljs-comment">// --- Lock版のテスト ---</span>
+    <span class="hljs-comment">// テスト前にGCを実行し、メモリ状態をクリーンにする</span>
+    GC.Collect();
+    GC.WaitForPendingFinalizers();
+    <span class="hljs-keyword">await</span> Task.Delay(<span class="hljs-number">200</span>); <span class="hljs-comment">// 安定待ち</span>
+
+    <span class="hljs-keyword">var</span> lockCounter = <span class="hljs-keyword">new</span> MethodCounter_WithLock();
+    <span class="hljs-keyword">long</span> lockWrites = <span class="hljs-keyword">await</span> RunWriteOnlyTest(lockCounter, durationSeconds);
+    Console.WriteLine(<span class="hljs-string">$"  -&gt; ✅ Lock版:      <span class="hljs-subst">{lockWrites / durationSeconds,<span class="hljs-number">15</span>:N0}</span> 件/秒"</span>);
+
+    <span class="hljs-comment">// --- Lock-free版のテスト ---</span>
+    GC.Collect();
+    GC.WaitForPendingFinalizers();
+    <span class="hljs-keyword">await</span> Task.Delay(<span class="hljs-number">200</span>);
+
+    <span class="hljs-keyword">var</span> lockFreeCounter = <span class="hljs-keyword">new</span> MethodCounter_LockFree();
+    <span class="hljs-keyword">long</span> lockFreeWrites = <span class="hljs-keyword">await</span> RunWriteOnlyTest(lockFreeCounter, durationSeconds);
+    Console.WriteLine(<span class="hljs-string">$"  -&gt; ⚡ Lock-free版: <span class="hljs-subst">{lockFreeWrites / durationSeconds,<span class="hljs-number">15</span>:N0}</span> 件/秒"</span>);
+
+    <span class="hljs-keyword">double</span> speedup = (<span class="hljs-keyword">double</span>)lockFreeWrites / lockWrites;
+    Console.WriteLine(<span class="hljs-string">$"\n  [結論] Lock-Free版はLock版の約<span class="hljs-subst">{speedup:F2}</span>倍高速！"</span>);
+}
+
+<span class="hljs-comment">// RunWriteOnlyTestヘルパーメソッド</span>
+<span class="hljs-function"><span class="hljs-keyword">static</span> <span class="hljs-keyword">async</span> Task&lt;<span class="hljs-keyword">long</span>&gt; <span class="hljs-title">RunWriteOnlyTest</span>(<span class="hljs-params">IMethodCounter counter, <span class="hljs-keyword">int</span> durationSeconds</span>)</span>
+{
+    <span class="hljs-keyword">long</span> totalWritten = <span class="hljs-number">0</span>;
+    <span class="hljs-keyword">var</span> cts = <span class="hljs-keyword">new</span> CancellationTokenSource();
+    <span class="hljs-keyword">var</span> keys = Enumerable.Range(<span class="hljs-number">0</span>, <span class="hljs-number">100</span>).Select(i =&gt; <span class="hljs-string">$"Method_<span class="hljs-subst">{i}</span>"</span>).ToArray();
+    
+    <span class="hljs-keyword">var</span> writerTasks = Enumerable.Range(<span class="hljs-number">0</span>, <span class="hljs-number">100</span>)
+        .Select(threadIndex =&gt; Task.Run(() =&gt;
+        {
+            <span class="hljs-keyword">var</span> random = <span class="hljs-keyword">new</span> Random(threadIndex);
+            <span class="hljs-keyword">while</span> (!cts.IsCancellationRequested)
+            {
+                counter.Record(keys[random.Next(keys.Length)]);
+                Interlocked.Increment(<span class="hljs-keyword">ref</span> totalWritten);
+            }
+        })).ToList();
+    
+    <span class="hljs-keyword">await</span> Task.Delay(TimeSpan.FromSeconds(durationSeconds));
+    cts.Cancel();
+    <span class="hljs-keyword">await</span> Task.WhenAll(writerTasks);
+    <span class="hljs-keyword">return</span> totalWritten;
+}
+</div></code></pre>
+<hr>
+<style scoped>
+section p {
+  text-align: center;
+}
+section img {
+  width:80%;
+  height: auto; /* アスペクト比を維持 */
+}
+</style>
+<h1 id="lock%E5%AE%9F%E8%A3%85%E3%81%A8lock-free%E5%AE%9F%E8%A3%85%E3%81%AE%E6%80%A7%E8%83%BD%E6%AF%94%E8%BC%83">Lock実装とLock-Free実装の性能比較</h1>
+<p><img src="file:///home/toutou/git_local/multithread-lt/docs/test3_performance.png" alt="test3_performance"></p>
+<ul>
+<li>Thread待機時間が減ってパフォーマンス向上</li>
+</ul>
+<!-- 
+speaker notes:
+- Lock-free実装により大幅な性能向上を実現
+- しかし、本当に完璧なのでしょうか？
+-->
+<hr>
+<style scoped>
+pre { font-size: 0.6em; }
+</style>
+<h1 id="lock-free%E5%AE%9F%E8%A3%85%E3%81%AE%E8%AA%B2%E9%A1%8C-%E5%A4%A7%E9%87%8F%E3%81%AE%E5%90%8C%E6%99%82%E8%AA%AD%E3%81%BF%E6%9B%B8%E3%81%8D%E3%82%B7%E3%83%8A%E3%83%AA%E3%82%AA">Lock-Free実装の課題: 大量の同時読み書きシナリオ</h1>
+<pre class="hljs"><code><div>    <span class="hljs-function"><span class="hljs-keyword">static</span> <span class="hljs-keyword">async</span> Task <span class="hljs-title">Step4_ShowLockFreeDataLoss</span>(<span class="hljs-params"></span>)</span>
+    {
+
+        <span class="hljs-keyword">var</span> counter = <span class="hljs-keyword">new</span> MethodCounter_LockFree();
+        <span class="hljs-comment">//var counter = new MethodCounter_WithLock(); // Lock版</span>
+        <span class="hljs-keyword">long</span> totalWritten = <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">long</span> totalRead = <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">var</span> cts = <span class="hljs-keyword">new</span> CancellationTokenSource();
+
+        <span class="hljs-comment">// 大量書き込み</span>
+        <span class="hljs-keyword">var</span> writerTasks = Enumerable.Range(<span class="hljs-number">0</span>, ThreadCount).Select(_ =&gt; Task.Run(() =&gt;
+        {
+            <span class="hljs-keyword">while</span> (!cts.IsCancellationRequested)
+            {
+                counter.Record(<span class="hljs-string">"Event"</span>);
+                Interlocked.Increment(<span class="hljs-keyword">ref</span> totalWritten);
+            }
+        })).ToList(); <span class="hljs-comment">// タスクを開始させる（Enumerableのままだと遅延実行になってしまう）</span>
+
+        <span class="hljs-comment">// 大量読み出し（リセットによる書き込みも含む）</span>
+        <span class="hljs-keyword">var</span> readerTask = Task.Run(<span class="hljs-keyword">async</span> () =&gt;
+        {
+            <span class="hljs-keyword">while</span> (!cts.IsCancellationRequested)
+            {
+                <span class="hljs-keyword">var</span> c = counter.GetCountsAndReset();
+                Interlocked.Add(<span class="hljs-keyword">ref</span> totalRead, c.Values.Sum());
+                <span class="hljs-keyword">await</span> Task.Delay(<span class="hljs-number">1</span>);
+            }
+        });
+
+        <span class="hljs-keyword">await</span> Task.Delay(<span class="hljs-number">10000</span>); <span class="hljs-comment">// 10秒間テスト</span>
+        cts.Cancel();
+        <span class="hljs-keyword">await</span> Task.WhenAll(writerTasks.Append(readerTask));
+        totalRead += counter.GetCountsAndReset().Values.Sum(); <span class="hljs-comment">// 残りを回収</span>
+
+        Console.WriteLine(<span class="hljs-string">$"  -&gt; 書き込み総数: <span class="hljs-subst">{totalWritten:N0}</span>"</span>);
+        Console.WriteLine(<span class="hljs-string">$"  -&gt; 読み取り総数: <span class="hljs-subst">{totalRead:N0}</span>"</span>);
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine(<span class="hljs-string">$"  -&gt; ロストした数: <span class="hljs-subst">{totalWritten - totalRead:N0}</span>"</span>);
+        Console.WriteLine(<span class="hljs-string">"\n  [結論] わずかですが、データがロストしてしまいました！\n"</span>);
+        Console.ResetColor();
+    }
+</div></code></pre>
+<hr>
+<style scoped>
+section p {
+  text-align: center;
+}
+section img {
+  width:80%;
+  height: auto; /* アスペクト比を維持 */
+}
+</style>
+<h1 id="lock-free%E5%AE%9F%E8%A3%85%E3%81%AE%E5%A4%A7%E9%87%8F%E5%90%8C%E6%99%82%E6%9B%B8%E3%81%8D%E8%BE%BC%E3%81%BF%E7%B5%90%E6%9E%9C">Lock-Free実装の大量同時書き込み結果</h1>
+<p><img src="file:///home/toutou/git_local/multithread-lt/docs/test4_data_loss.png" alt="test4_data_loss"></p>
+<h2 id="%E7%B5%90%E6%9E%9C">結果</h2>
+<ul>
+<li>わずかにデータロスト発生</li>
+</ul>
+<hr>
+<style scoped>
+section p {
+  text-align: center;
+}
+section img {
+  width:70%;
+  height: auto; /* アスペクト比を維持 */
+}
+</style>
+<h1 id="%E3%83%87%E3%83%BC%E3%82%BF%E3%83%AD%E3%82%B9%E3%83%88%E3%81%AE%E7%90%86%E7%94%B1">データロストの理由</h1>
+<p><img src="file:///home/toutou/git_local/multithread-lt/docs/lockfree-code-level-diagram.svg" alt=""></p>
+<hr>
+<h1 id="%E3%81%BE%E3%81%A8%E3%82%813%E3%81%A4%E3%81%AE%E5%AE%9F%E8%A3%85%E3%81%AE%E6%AF%94%E8%BC%83">まとめ：3つの実装の比較</h1>
+<style scoped>
+table { 
+  font-size: 1.0em;
+  width: 95%;
+}
+th, td { 
+  padding: 8px;
+  text-align: center;
+  font-size: 1.0em;
+}
+</style>
+<br>
+<br>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">実装方式</th>
+<th style="text-align:center">正確性</th>
+<th style="text-align:center">性能</th>
+<th style="text-align:left">適用場面</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>NotThreadSafe</strong></td>
+<td style="text-align:center">❌</td>
+<td style="text-align:center">－</td>
+<td style="text-align:left">なし</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>WithLock</strong></td>
+<td style="text-align:center">✅</td>
+<td style="text-align:center">⚠️</td>
+<td style="text-align:left">正確性が最優先<br><span class="small">（課金、在庫管理とか）</span></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>LockFree</strong></td>
+<td style="text-align:center">⚠️</td>
+<td style="text-align:center">✅</td>
+<td style="text-align:left">高速性が重要<br><span class="small">（アクセス解析、ログとか）</span></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>要件に応じて実装を使い分けよう</li>
+</ul>
+<hr>
+<h1 id="%E3%81%9D%E3%81%AE%E4%BB%96%E3%83%BB%E6%A4%9C%E8%A8%BC%E3%81%97%E3%81%9F%E3%81%8B%E3%81%A3%E3%81%9F%E3%81%93%E3%81%A8">その他・検証したかったこと</h1>
+<ul>
+<li>メモリバリアとvolatile
+<ul>
+<li><strong>Read Barrier</strong>: 読み込み順序保証</li>
+<li><strong>Write Barrier</strong>: 書き込み順序保証</li>
+<li><strong>Full Barrier</strong>: 両方保証（lock, Interlocked）</li>
+<li>volatile は順序保証のみ、アトミック性は保証しない</li>
+</ul>
+</li>
+<li>同期プリミティブの使い分け
+<ul>
+<li><strong>lock</strong>: 一般的な相互排他</li>
+<li><strong>ReaderWriterLockSlim</strong>: 読み取り頻度が &gt;&gt; 書き込み頻度 の場合</li>
+<li><strong>SemaphoreSlim</strong>: 同時アクセス数制限</li>
+</ul>
+</li>
+<li>パフォーマンス考慮したlockの使い分け
+<ul>
+<li><strong>読み書き比率</strong>: 7:1以上なら ReaderWriterLockSlim</li>
+<li><strong>待機時間</strong>: 短時間=SpinLock、長時間=通常lock</li>
+<li><strong>スケーラビリティ</strong>: 高負荷時はlock-freeデータ構造</li>
+</ul>
+</li>
+<li>ベンチマーク実装に BenchmarkDotNet を使う</li>
+</ul>
+<!-- 
+speaker notes:
+- 実際のシステムでは要件に応じて使い分けが必要
+- パフォーマンステストは必須
+- 将来の保守性も考慮すること
+-->
+<hr>
+<h3 id="%E3%83%AA%E3%83%B3%E3%82%AF">リンク</h3>
+<br>
+<p><strong>GitHub</strong>: <a href="https://github.com/tou-tou/multi-thread-demo">multi-thread-demo</a>
+<strong>X</strong>: <a href="https://tx.com/__tou__tou">@__tou__tou</a></p>
+
+</body>
+</html>
