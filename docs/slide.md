@@ -68,7 +68,7 @@ style: |
 
 <!-- _class: lead -->
 
-# マルチスレッド実装を理解する
+# マルチスレッドプログラミングを理解する
 
 ### 正確性とパフォーマンスのバランス
 
@@ -104,7 +104,7 @@ speaker notes:
 <br>
 
 * **GitHub**: [multi-thread-demo](https://github.com/tou-tou/multi-thread-demo)
-* 
+* **Docswell**: [マルチスレッドプログラミングを理解する](https://www.docswell.com/s/toutou/K4E388-2025-07-05-165404)
 
 ---
 
@@ -610,12 +610,21 @@ section img {
 }
 </style>
 
-# Lock実装とLock-Free実装の性能比較
+# Lock実装とLock-Free実装の性能比較 [Windows環境]
+
+![test3_performance](test3_performance_2.png)
+
+
+- Thread待機時間が減ってパフォーマンスが6倍向上
+
+
+---
+# Lock実装とLock-Free実装の性能比較 [WSL環境]
 
 ![test3_performance](test3_performance.png)
 
 
-- Thread待機時間が減ってパフォーマンス向上
+- Thread待機時間が減ってパフォーマンスが1.6倍向上
 
 <!-- 
 speaker notes:
