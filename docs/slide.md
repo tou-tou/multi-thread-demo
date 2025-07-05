@@ -619,6 +619,15 @@ section img {
 
 
 ---
+<style scoped>
+section p {
+  text-align: center;
+}
+section img {
+  width:80%;
+  height: auto; /* アスペクト比を維持 */
+}
+</style>
 # Lock実装とLock-Free実装の性能比較 [WSL環境]
 
 ![test3_performance](test3_performance.png)
