@@ -24,12 +24,13 @@ dotnet run
 ```
 
 ### CPUコアを指定した実行（推奨）
+WSLで実行
 ```bash
+# 4コアを使用する場合
+taskset -c 0-3 dotnet run
+
 # 24コアを使用する場合
 taskset -c 0-23 dotnet run
-
-# 8コアを使用する場合
-taskset -c 0-7 dotnet run
 ```
 
 `taskset`コマンドを使用することで、使用するCPUコアを明示的に指定し、より安定したベンチマーク結果を得ることができます。
